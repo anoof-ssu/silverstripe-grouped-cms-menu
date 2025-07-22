@@ -60,7 +60,7 @@ class GroupedCmsMenu extends LeftAndMainExtension
         $itemSort = 0;
 
         foreach ($groupSettings as $groupName => $menuItems) {
-            if (!count($menuItems['children'])) {
+            if (empty($menuItems['children']) || !is_array($menuItems['children'])) {
                 continue;
             }
 
@@ -190,7 +190,14 @@ class GroupedCmsMenu extends LeftAndMainExtension
         $menuIconStyling = '';
         foreach ($children as $child) {
             foreach ($groupSettings as $group => $candidates) {
-                $candidates = str_replace('-', '\\', $candidates['children']);
+                if (!isset($candidates['children']) || !is_array($candidates['children'])) {
+                    continue; // skip if no children or not array
+                }
+
+                $candidates = array_map(function($item) {
+                    return str_replace('-', '\\', $item);
+                }, $candidates['children']);
+
                 $class = $child->MenuItem->controller;
                 $iconClass = null;
                 $menuIcon = LeftAndMain::menu_icon_for_class($class);
